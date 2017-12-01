@@ -33,10 +33,10 @@ test_color = "r"
 for age, net_worth in zip(ages_train, net_worths_train):
 #    print "age", age
 #    print "net", net_worth[0]
-    plt.scatter(age, net_worth, c=train_color)
+    plt.scatter(age, net_worth, c=train_color,alpha = 0.4)
 
 for age, net in zip(ages_test, net_worths_test):
-    plt.scatter(age, net, c = test_color)
+    plt.scatter(age, net, c = test_color, alpha = 0.4)
 
 
 reg = linear_model.LinearRegression()
@@ -52,41 +52,48 @@ plt.scatter(ages, net_worths)
 plt.show()
 
 
-#### identify and remove the most outlier-y points
-#cleaned_data = []
-#try:
-#    predictions = reg.predict(ages_train)
-#    cleaned_data = outlierCleaner( predictions, ages_train, net_worths_train )
-#except NameError:
-#    print "your regression object doesn't exist, or isn't name reg"
-#    print "can't make predictions to use in identifying outliers"
-#
-#
-#
-#
-#
-#
-#
-#### only run this code if cleaned_data is returning data
-#if len(cleaned_data) > 0:
-#    ages, net_worths, errors = zip(*cleaned_data)
-#    ages       = numpy.reshape( numpy.array(ages), (len(ages), 1))
-#    net_worths = numpy.reshape( numpy.array(net_worths), (len(net_worths), 1))
-#
-#    ### refit your cleaned data!
-#    try:
-#        reg.fit(ages, net_worths)
-#        plt.plot(ages, reg.predict(ages), color="blue")
-#    except NameError:
-#        print "you don't seem to have regression imported/created,"
-#        print "   or else your regression object isn't named reg"
-#        print "   either way, only draw the scatter plot of the cleaned data"
-#    plt.scatter(ages, net_worths)
-#    plt.xlabel("ages")
-#    plt.ylabel("net worths")
-#    plt.show()
-#
-#
-#else:
-#    print "outlierCleaner() is returning an empty list, no refitting to be done"
+### identify and remove the most outlier-y points
+cleaned_data = []
+try:
+    predictions = reg.predict(ages_train)
+    cleaned_data = outlierCleaner( predictions, ages_train, net_worths_train )
+except NameError:
+    print "your regression object doesn't exist, or isn't name reg"
+    print "can't make predictions to use in identifying outliers"
+
+
+
+
+
+
+
+### only run this code if cleaned_data is returning data
+if len(cleaned_data) > 0:
+    ages, net_worths, errors = zip(*cleaned_data)
+    ages       = numpy.reshape( numpy.array(ages), (len(ages), 1))
+    net_worths = numpy.reshape( numpy.array(net_worths), (len(net_worths), 1))
+
+    for age, net_worth in zip(ages, net_worths):
+#        print "age", age
+#        print "net", net_worth[0]
+        plt.scatter(age, net_worth, c='green')
+    ### refit your cleaned data!
+    try:
+        reg.fit(ages, net_worths)
+        plt.plot(ages, reg.predict(ages), color="blue")
+        
+        print('Coefficients after: \n', reg.coef_)
+        print('Variance score after: %.2f' , r2_score(net_worths_test, pred))
+    except NameError:
+        print "you don't seem to have regression imported/created,"
+        print "   or else your regression object isn't named reg"
+        print "   either way, only draw the scatter plot of the cleaned data"
+    plt.scatter(ages, net_worths)
+    plt.xlabel("ages")
+    plt.ylabel("net worths")
+    plt.show()
+
+
+else:
+    print "outlierCleaner() is returning an empty list, no refitting to be done"
 

@@ -33,7 +33,7 @@ clf.fit(features_train, labels_train)
 pred = clf.predict(features_test)
 
 from sklearn.metrics import accuracy_score
-acc = accuracy_score(pred, labels_test)
+acc = accuracy_score(labels_test, pred)
 
 print "training time:", round(time()-t0, 3), "s"
 print acc

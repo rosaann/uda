@@ -23,7 +23,7 @@ def pca_results(good_data, pca):
 
 	# Dimension indexing
 	dimensions = dimensions = ['Dimension {}'.format(i) for i in range(1,len(pca.components_)+1)]
-
+   
 	# PCA components
 	components = pd.DataFrame(np.round(pca.components_, 4), columns = good_data.keys())
 	components.index = dimensions
@@ -149,6 +149,7 @@ def channel_results(reduced_data, outliers, pca_samples):
 	# Color the points based on assigned Channel
 	labels = ['Hotel/Restaurant/Cafe', 'Retailer']
 	grouped = labeled.groupby('Channel')
+     
 	for i, channel in grouped:   
 	    channel.plot(ax = ax, kind = 'scatter', x = 'Dimension 1', y = 'Dimension 2', \
 	                 color = cmap((i-1)*1.0/2), label = labels[i-1], s=30);

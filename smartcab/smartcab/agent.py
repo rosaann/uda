@@ -49,9 +49,11 @@ class LearningAgent(Agent):
 
         # Collect data about the environment
         waypoint = self.planner.next_waypoint() # The next waypoint 
+        print "waypoint ", waypoint
         inputs = self.env.sense(self)           # Visual input - intersection light and traffic
+        print "inputs ", inputs
         deadline = self.env.get_deadline(self)  # Remaining deadline
-
+        print "deadline ", deadline
         ########### 
         ## TO DO ##
         ###########
@@ -96,7 +98,7 @@ class LearningAgent(Agent):
         self.state = state
         self.next_waypoint = self.planner.next_waypoint()
         action = None
-
+        action = random.choice(self.env.valid_actions)
         ########### 
         ## TO DO ##
         ###########

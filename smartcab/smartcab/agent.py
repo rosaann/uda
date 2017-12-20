@@ -8,7 +8,7 @@ class LearningAgent(Agent):
     """ An agent that learns to drive in the Smartcab world.
         This is the object you will be modifying. """ 
 
-    def __init__(self, env, learning=False, epsilon=1.0, alpha=0.5):
+    def __init__(self, env, learning=True, epsilon=1.0, alpha=0.5):
         super(LearningAgent, self).__init__(env)     # Set the agent in the evironment 
         self.planner = RoutePlanner(self.env, self)  # Create a route planner
         self.valid_actions = self.env.valid_actions  # The set of valid actions
@@ -58,7 +58,7 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Set 'state' as a tuple of relevant data for the agent        
-        state = None
+        state = {waypoint, inputs['light'] , inputs['left'], inputs['right'], inputs['oncoming']}
 
         return state
 
@@ -82,6 +82,9 @@ class LearningAgent(Agent):
 
         ########### 
         ## TO DO ##
+        if self.Q.has_key(state) == False:
+            self.Q[state] = 0.0
+            
         ###########
         # When learning, check if the 'state' is not in the Q-table
         # If it is not, create a new dictionary for that state
@@ -117,6 +120,7 @@ class LearningAgent(Agent):
         ########### 
         ## TO DO ##
         ###########
+        self.Q[state][action] = reward * alpha
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
 

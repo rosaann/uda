@@ -34,7 +34,7 @@ class Simulator(object):
         'gray'    : (155, 155, 155)
     }
 
-    def __init__(self, env, size=None, update_delay=2.01, display=True, log_metrics=True, optimized=False):
+    def __init__(self, env, size=None, update_delay=0.01, display=True, log_metrics=True, optimized=True):
         self.env = env
         self.size = size if size is not None else ((self.env.grid_size[0] + 1) * self.env.block_size, (self.env.grid_size[1] + 2) * self.env.block_size)
         self.width, self.height = self.size
@@ -53,6 +53,7 @@ class Simulator(object):
         self.update_delay = update_delay  # duration between each step (in seconds)
 
         self.display = display
+        
         if self.display:
             try:
                 self.pygame = importlib.import_module('pygame')
@@ -108,7 +109,7 @@ class Simulator(object):
             self.log_writer = csv.DictWriter(self.log_file, fieldnames=self.log_fields)
             self.log_writer.writeheader()
 
-    def run(self, tolerance=0.05, n_test=10):
+    def run(self, tolerance=0.01, n_test=10):
         """ Run a simulation of the environment. 
 
         'tolerance' is the minimum epsilon necessary to begin testing (if enabled)
@@ -129,7 +130,7 @@ class Simulator(object):
 
             # Flip testing switch
             if not testing:
-                if total_trials > 20: # Must complete minimum 20 training trials
+                if total_trials > 30: # Must complete minimum 20 training trials
                     if a.learning:
                         if a.epsilon < tolerance: # assumes epsilon decays to 0
                             testing = True
@@ -223,6 +224,7 @@ class Simulator(object):
             # Increment
             total_trials = total_trials + 1
             trial = trial + 1
+            self.env.total_trials = total_trials
 
         # Clean up
         if self.log_metrics:

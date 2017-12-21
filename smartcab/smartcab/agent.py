@@ -8,7 +8,7 @@ class LearningAgent(Agent):
     """ An agent that learns to drive in the Smartcab world.
         This is the object you will be modifying. """ 
 
-    def __init__(self, env, learning=True, epsilon=0.9, alpha=0.5):
+    def __init__(self, env, learning=True, epsilon=0.9, alpha=0.9):
         super(LearningAgent, self).__init__(env)     # Set the agent in the evironment 
         self.planner = RoutePlanner(self.env, self)  # Create a route planner
         self.valid_actions = self.env.valid_actions  # The set of valid actions
@@ -72,10 +72,12 @@ class LearningAgent(Agent):
         ###########
         # Calculate the maximum Q-value of all actions for a given state
         action_r_dic = self.Q[state]
-        maxQ = max(action_r_dic)
+        v = max(action_r_dic.values())
             
-        
-        print "maxQ ", maxQ
+        for k in action_r_dic:
+            if action_r_dic[k] == v:
+                maxQ = k
+        print "maxQ ", maxQ, "in state ", self.Q[state]
         return maxQ 
 
 
@@ -88,8 +90,8 @@ class LearningAgent(Agent):
         if self.Q.has_key(state) == False:
             self.Q[state] = {}
             if state[1] != 'red':               
-                self.Q[state][state[0]] = 0.0
-            self.Q[state][None] = 0.0    
+                self.Q[state][state[0]] = 0.0               
+            self.Q[state]['None'] = 0.0    
             
         ###########
         # When learning, check if the 'state' is not in the Q-table
@@ -117,13 +119,19 @@ class LearningAgent(Agent):
                 action = random.choice(arr)
             else:
                 action = self.get_maxQ(state)
-            self.epsilon = math.pow(0.8, self.env.total_trials)
+                if self.Q[state][action] < 0:
+                    ch_action = random.choice( self.env.valid_actions - self.Q[state].keys())
+                    if ch_action != None:
+                        self.Q[state][ch_action] = 0.0
+                        action = ch_action
+                        print "ch_action ", ch_action
+            self.epsilon = math.pow(0.9, self.env.total_trials)
             print "epsilon ", self.epsilon
         else:
             action = self.get_maxQ(state)
         
-#        if action == "None":
-#            action = None
+        if action == "None":
+            action = None
         ########### 
         ## TO DO ##
         ###########
@@ -143,10 +151,13 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         print "action ", action
+        if action == None:
+            action = 'None'
         nextState = self.build_state()
         if self.Q.has_key(nextState) == True:
             print "d ", (self.Q[nextState][max(self.Q[nextState])])
-            self.Q[state][action] = reward 
+            print "modify ",state, " old ", self.Q[state][action], "new ", reward
+            self.Q[state][action] = reward
 #            + self.alpha * (self.Q[nextState][max(self.Q[nextState])])
         else:
             self.Q[state][action] = reward 

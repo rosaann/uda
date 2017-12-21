@@ -91,7 +91,7 @@ class LearningAgent(Agent):
             self.Q[state] = {}
             if state[1] != 'red':               
                 self.Q[state][state[0]] = 0.0               
-            self.Q[state]['None'] = 0.0    
+            self.Q[state][None] = 0.0    
             
         ###########
         # When learning, check if the 'state' is not in the Q-table
@@ -120,8 +120,11 @@ class LearningAgent(Agent):
             else:
                 action = self.get_maxQ(state)
                 if self.Q[state][action] < 0:
-                    ch_action = random.choice( self.env.valid_actions - self.Q[state].keys())
-                    if ch_action != None:
+                    remainedAction = set(self.env.valid_actions) - set(self.Q[state].keys())
+                    if len( remainedAction) > 0: 
+                        print "remainedAction ", remainedAction
+                        ch_action = random.choice(list(remainedAction)) 
+                    
                         self.Q[state][ch_action] = 0.0
                         action = ch_action
                         print "ch_action ", ch_action
@@ -130,8 +133,8 @@ class LearningAgent(Agent):
         else:
             action = self.get_maxQ(state)
         
-        if action == "None":
-            action = None
+#        if action == "None":
+#            action = None
         ########### 
         ## TO DO ##
         ###########
@@ -151,8 +154,8 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         print "action ", action
-        if action == None:
-            action = 'None'
+#        if action == None:
+#            action = 'None'
         nextState = self.build_state()
         if self.Q.has_key(nextState) == True:
             print "d ", (self.Q[nextState][max(self.Q[nextState])])

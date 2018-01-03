@@ -8,7 +8,7 @@ class LearningAgent(Agent):
     """ An agent that learns to drive in the Smartcab world.
         This is the object you will be modifying. """ 
 
-    def __init__(self, env, learning=True, epsilon=0.9, alpha=0.9):
+    def __init__(self, env, learning=True, epsilon=0.95, alpha=0.5):
         super(LearningAgent, self).__init__(env)     # Set the agent in the evironment 
         self.planner = RoutePlanner(self.env, self)  # Create a route planner
         self.valid_actions = self.env.valid_actions  # The set of valid actions
@@ -39,7 +39,11 @@ class LearningAgent(Agent):
         # Update epsilon using a decay function of your choice
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
-
+    #    self.epsilon = self.epsilon - 0.05
+        self.epsilon = math.pow(0.9, self.env.total_trials)
+        if self.epsilon < 0:
+            self.epsilon = 0
+        print "epsilon ", self.epsilon
         return None
 
     def build_state(self):
@@ -88,10 +92,7 @@ class LearningAgent(Agent):
         ## TO DO ##
 #        print "xx ",self.Q.has_key(state)
         if self.Q.has_key(state) == False:
-            self.Q[state] = {}
-            if state[1] != 'red':               
-                self.Q[state][state[0]] = 0.0               
-            self.Q[state][None] = 0.0    
+            self.Q[state] = {None : 0.0,'forward':0.0, 'left' : 0.0, 'right':0.0}
             
         ###########
         # When learning, check if the 'state' is not in the Q-table
@@ -109,27 +110,22 @@ class LearningAgent(Agent):
         self.state = state
         self.next_waypoint = self.planner.next_waypoint()
         action = None
-#        action = random.choice(self.env.valid_actions)
+        if self.learning == False:
+            action = random.choice(self.env.valid_actions)
+            return action
         
         if self.testing == False:
-            action = random.choice(self.env.valid_actions)
-            arr = [k for k in self.Q[state].keys() if self.Q[state][k] == 0.0]
-            print "arr ", arr, " keys ", self.Q[state].keys()
-            if len(arr) > 0:
-                action = random.choice(arr)
+            if random.random() <= self.epsilon:
+                arr = [k for k in self.Q[state].keys() if self.Q[state][k] == 0.0]
+                print "arr ", arr, " keys ", self.Q[state].keys()
+                if len(arr) > 0:
+                    action = random.choice(arr)
+                else:
+                    action = random.choice(self.env.valid_actions)
             else:
                 action = self.get_maxQ(state)
-                if self.Q[state][action] < 0:
-                    remainedAction = set(self.env.valid_actions) - set(self.Q[state].keys())
-                    if len( remainedAction) > 0: 
-                        print "remainedAction ", remainedAction
-                        ch_action = random.choice(list(remainedAction)) 
-                    
-                        self.Q[state][ch_action] = 0.0
-                        action = ch_action
-                        print "ch_action ", ch_action
-            self.epsilon = math.pow(0.9, self.env.total_trials)
-            print "epsilon ", self.epsilon
+           
+            
         else:
             action = self.get_maxQ(state)
         
@@ -156,14 +152,9 @@ class LearningAgent(Agent):
         print "action ", action
 #        if action == None:
 #            action = 'None'
-        nextState = self.build_state()
-        if self.Q.has_key(nextState) == True:
-            print "d ", (self.Q[nextState][max(self.Q[nextState])])
-            print "modify ",state, " old ", self.Q[state][action], "new ", reward
-            self.Q[state][action] = reward
-#            + self.alpha * (self.Q[nextState][max(self.Q[nextState])])
-        else:
-            self.Q[state][action] = reward 
+        
+        self.Q[state][action] = (1 - self.alpha) * self.Q[state][action] + self.alpha * reward;
+        
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
 
@@ -194,6 +185,7 @@ def run():
     #   verbose     - set to True to display additional output from the simulation
     #   num_dummies - discrete number of dummy agents in the environment, default is 100
     #   grid_size   - discrete number of intersections (columns, rows), default is (8, 6)
+
     env = Environment()
     
     ##############

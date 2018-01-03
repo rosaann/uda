@@ -32,7 +32,7 @@ class Environment(object):
     valid_headings = [(1, 0), (0, -1), (-1, 0), (0, 1)]  # E, N, W, S
     hard_time_limit = -100  # Set a hard time limit even if deadline is not enforced.
 
-    def __init__(self, verbose=False, num_dummies=100, grid_size = (8, 6)):
+    def __init__(self, verbose=True, num_dummies=100, grid_size = (8, 6)):
         self.num_dummies = num_dummies  # Number of dummy driver agents in the environment
         self.verbose = verbose # If debug output should be given
 
@@ -96,7 +96,7 @@ class Environment(object):
         self.agent_states[agent] = {'location': random.choice(self.intersections.keys()), 'heading': (0, 1)}
         return agent
 
-    def set_primary_agent(self, agent, enforce_deadline=False):
+    def set_primary_agent(self, agent, enforce_deadline=True):
         """ When called, set_primary_agent sets 'agent' as the primary agent.
             The primary agent is the smartcab that is followed in the environment. """
 

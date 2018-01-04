@@ -40,7 +40,7 @@ class LearningAgent(Agent):
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
     #    self.epsilon = self.epsilon - 0.05
-        self.epsilon = math.pow(0.9, self.env.total_trials)
+        self.epsilon = math.pow(0.999, self.env.total_trials)
         if self.epsilon < 0:
             self.epsilon = 0
         print "epsilon ", self.epsilon

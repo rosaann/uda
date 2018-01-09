@@ -39,10 +39,9 @@ class LearningAgent(Agent):
         # Update epsilon using a decay function of your choice
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
-    #    self.epsilon = self.epsilon - 0.05
-        self.epsilon = math.pow(0.999, self.env.total_trials)
-        if self.epsilon < 0:
-            self.epsilon = 0
+        self.epsilon = self.epsilon - 0.05
+#        self.epsilon = math.pow(0.999, self.env.total_trials)
+
         print "epsilon ", self.epsilon
         return None
 
@@ -75,14 +74,7 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Calculate the maximum Q-value of all actions for a given state
-        action_r_dic = self.Q[state]
-        v = max(action_r_dic.values())
-            
-        for k in action_r_dic:
-            if action_r_dic[k] == v:
-                maxQ = k
-        print "maxQ ", maxQ, "in state ", self.Q[state]
-        return maxQ 
+        return  max(self.Q[state].values())
 
 
     def createQ(self, state):
@@ -91,9 +83,10 @@ class LearningAgent(Agent):
         ########### 
         ## TO DO ##
 #        print "xx ",self.Q.has_key(state)
-        if self.Q.has_key(state) == False:
-            self.Q[state] = {None : 0.0,'forward':0.0, 'left' : 0.0, 'right':0.0}
-            
+        if self.learning:
+            if state not in self.Q:
+                self.Q[state] = {action: 0.0 for action in self.valid_actions}
+        print "new state ", state, " ", self.Q[state]
         ###########
         # When learning, check if the 'state' is not in the Q-table
         # If it is not, create a new dictionary for that state
@@ -116,21 +109,24 @@ class LearningAgent(Agent):
         
         if self.testing == False:
             if random.random() <= self.epsilon:
+#               这里按照审阅老师的说法，随机选择一个action就行了，但是我想优先在未学习过的action中选择一个来学习，如果action都学习过了，再实行随机选择一个，我觉得这样更加高效，所以没有按照审阅老师说的改。
                 arr = [k for k in self.Q[state].keys() if self.Q[state][k] == 0.0]
                 print "arr ", arr, " keys ", self.Q[state].keys()
                 if len(arr) > 0:
                     action = random.choice(arr)
                 else:
                     action = random.choice(self.env.valid_actions)
+
             else:
-                action = self.get_maxQ(state)
+                 maxQ = self.get_maxQ(state)
+                 action = self.get_maxQ_action(maxQ,state)
            
             
         else:
-            action = self.get_maxQ(state)
-        
-#        if action == "None":
-#            action = None
+            maxQ = self.get_maxQ(state)
+            action = self.get_maxQ_action(maxQ, state)
+            
+                    
         ########### 
         ## TO DO ##
         ###########
@@ -140,6 +136,33 @@ class LearningAgent(Agent):
  
         return action
 
+    def get_maxQ_action(self, maxQ, state):
+#        这里如果有多个相同最大值的action,如果Q值不为0，则随机选取一个action就可以了，
+#        但是为了保险起见，在训练了1000多次以后，万一还是有没有训练到的状态，这时最大值都是0，所以如果下一步指示的方向在其中，
+#        并且是绿灯的状态，则优先选择下一步指示的方向；如果遇到红灯，则优先选择None的action,这样万一测试的时候遇到没有训练到的状态，造成事故的几率会小一些
+        action_r_dic = self.Q[state]
+        alist = [];
+        action = None;
+        for k in action_r_dic:
+            if action_r_dic[k] == maxQ:
+                alist.append(k)
+                print "maxQ ", maxQ, "in state ", self.Q[state]
+#        action = random.choice(alist)
+#        return action
+        if maxQ != 0:
+            action = random.choice(alist)
+            return action
+        if self.next_waypoint  in alist:
+            if state[1] == 'green':
+                action = self.next_waypoint
+                
+        elif state[1] == 'red':           
+            if None in alist:
+                action = None;
+        else:
+            action = random.choice(alist)
+        print "maxQ chose  ", action
+        return action   
 
     def learn(self, state, action, reward):
         """ The learn function is called after the agent completes an action and
@@ -150,10 +173,9 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         print "action ", action
-#        if action == None:
-#            action = 'None'
-        
-        self.Q[state][action] = (1 - self.alpha) * self.Q[state][action] + self.alpha * reward;
+
+        if self.learning:
+            self.Q[state][action] = (1 - self.alpha) * self.Q[state][action] + self.alpha * reward;
         
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
@@ -169,6 +191,7 @@ class LearningAgent(Agent):
         state = self.build_state()          # Get current state
         self.createQ(state)                 # Create 'state' in Q-table
         action = self.choose_action(state)  # Choose an action
+        print "chose action ", action
         reward = self.env.act(self, action) # Receive a reward
         self.learn(state, action, reward)   # Q-learn
 

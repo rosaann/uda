@@ -20,19 +20,7 @@ epoch_ids = [10]
 #model = utils.get_model()
 
 ## Preprocess
-def img_pre_process(img):
-    """
-    Processes the image and returns it
-    :param img: The image to be processed
-    :return: Returns the processed image
-    """
-    ## Chop off 1/3 from the top and cut bottom 150px(which contains the head of car)
-    shape = img.shape
-    img = img[int(shape[0]/3):shape[0]-150, 0:shape[1]]
-    ## Resize the image
-    img = cv2.resize(img, (params.FLAGS.img_w, params.FLAGS.img_h), interpolation=cv2.INTER_AREA)
-    ## Return the image sized as a 4D array
-    return np.resize(img, (params.FLAGS.img_w, params.FLAGS.img_h, params.FLAGS.img_c))
+
 
 
 ## Process video
@@ -51,10 +39,10 @@ for epoch_id in epoch_ids:
     time_start = time.time()
     for frame_id in range(frame_count):
         ret, img = cap.read()
-#        plt.imshow(img)
+        plt.imshow(img)
         assert ret
         ## you can modify here based on your model
-        img = img_pre_process(img)
+        img = utils.img_pre_process(img)
         img = img[None,:,:,:]
         deg = float(model.predict(img, batch_size=1))
         machine_steering.append(deg)

@@ -413,16 +413,29 @@ def get_model():
             model.summary()
     return model
 
-
+def img_pre_process(img):
+    """
+    Processes the image and returns it
+    :param img: The image to be processed
+    :return: Returns the processed image
+    """
+    ## Chop off 1/3 from the top and cut bottom 150px(which contains the head of car)
+    shape = img.shape
+#    print("shape  ", shape)
+    img = img[int(shape[0]/3):shape[0]-150, 0:shape[1]]
+    ## Resize the image
+    img = cv2.resize(img, (params.FLAGS.img_w, params.FLAGS.img_h), interpolation=cv2.INTER_AREA)
+    ## Return the image sized as a 4D array
+    return np.resize(img, (params.FLAGS.img_w, params.FLAGS.img_h, params.FLAGS.img_c))
 #########################################
 #### Testing pipeline
 #########################################
-if __name__ == '__main__':
-    epoch_id = 1
-    machine_steering = get_human_steering(epoch_id)
-
-    # frame_count_limit = None
-    # frame_count_limit = 30 * 5
-    # frame_count_limit = 1
-    visualize(epoch_id, machine_steering, params.out_dir,
-              verbose=True, frame_count_limit=150)
+#if __name__ == '__main__':
+#    epoch_id = 1
+#    machine_steering = get_human_steering(epoch_id)
+#
+#    # frame_count_limit = None
+#    # frame_count_limit = 30 * 5
+#    # frame_count_limit = 1
+#    visualize(epoch_id, machine_steering, params.out_dir,
+#              verbose=True, frame_count_limit=150)

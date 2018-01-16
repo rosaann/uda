@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 ## Test epoch
 epoch_ids = [10]
 ## Load model
-#model = utils.get_model()
+model = utils.get_model()
 
 ## Preprocess
 

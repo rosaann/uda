@@ -1,0 +1,4 @@
+https://www.baidupcs.com/rest/2.0/pcs/file?method=batchdownload&app_id=250528&zipcontent=%7B%22fs_id%22%3A%5B%22204604493995521%22%5D%7D&sign=DCb740ccc5511e5e8fedcff06b081203:wMymnCfKR7DK0SoODjrIKwf6kkk%3D&uid=1007173363&time=1519712510&dp-logid=1312679037503204362&dp-callid=0&from_uk=1007173363
+
+
+wget -c —-referer=https://pan.baidu.com/s/1dFzd0at#list/path=%2F -O imgs.zip “https://www.baidupcs.com/rest/2.0/pcs/file?method=batchdownload&app_id=250528&zipcontent=%7B%22fs_id%22%3A%5B%22204604493995521%22%5D%7D&sign=DCb740ccc5511e5e8fedcff06b081203:wMymnCfKR7DK0SoODjrIKwf6kkk%3D&uid=1007173363&time=1519712510&dp-logid=1312679037503204362&dp-callid=0&from_uk=1007173363”
